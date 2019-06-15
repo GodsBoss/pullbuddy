@@ -2,8 +2,6 @@ package pullbuddy
 
 import (
 	"net/http"
-
-	"github.com/go-chi/chi"
 )
 
 type Server struct {
@@ -11,9 +9,11 @@ type Server struct {
 }
 
 func (server *Server) Start() error {
+	sch := newScheduler()
+	go sch.run()
 	httpServ := http.Server{
 		Addr:    orDefaultAddr(server.Addr),
-		Handler: chi.NewRouter(),
+		Handler: newHandler(sch),
 	}
 	return httpServ.ListenAndServe()
 }
