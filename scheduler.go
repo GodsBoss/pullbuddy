@@ -1,6 +1,8 @@
 package pullbuddy
 
-import "sync"
+import (
+	"sync"
+)
 
 type scheduler struct {
 	images                 []image
@@ -46,7 +48,7 @@ func (sch *scheduler) run() {
 
 func (sch *scheduler) scheduleFromChannel(id imageID) {
 	sch.lock.Lock()
-	defer sch.lock.Lock()
+	defer sch.lock.Unlock()
 	for i := range sch.images {
 		if sch.images[i].id == id && !sch.images[i].status.Done() {
 			return
@@ -66,7 +68,7 @@ func (sch *scheduler) nextImage() {
 		return
 	}
 	sch.lock.Lock()
-	defer sch.lock.Lock()
+	defer sch.lock.Unlock()
 	for i := range sch.images {
 		if sch.images[i].status == pending {
 			go sch.processImage(sch.images[i].id)
