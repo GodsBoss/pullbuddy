@@ -29,7 +29,7 @@ func (sch *scheduler) list() []image {
 	locker := sch.lock.RLocker()
 	locker.Lock()
 	defer locker.Unlock()
-	images := make([]image, 0, len(sch.images))
+	images := make([]image, len(sch.images))
 	copy(images, sch.images)
 	return images
 }
