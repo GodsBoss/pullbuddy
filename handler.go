@@ -14,8 +14,8 @@ type schedulerAPI interface {
 
 func newHandler(api schedulerAPI) http.Handler {
 	router := chi.NewRouter()
-	router.Get("list", listHandler(api))
-	router.Post("schedule", scheduleHandler(api))
+	router.Get("/list", listHandler(api))
+	router.Post("/schedule", scheduleHandler(api))
 	return router
 }
 
