@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/GodsBoss/pullbuddy"
+
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -24,8 +26,16 @@ func createApp() *cli.App {
 				Subcommands: []*cli.Command{
 					{
 						Name: "start",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name: "addr",
+							},
+						},
 						Action: func(ctx *cli.Context) error {
-							return nil
+							server := &pullbuddy.Server{
+								Addr: ctx.String("addr"),
+							}
+							return server.Start()
 						},
 					},
 				},
