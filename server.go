@@ -12,17 +12,17 @@ func (server *Server) Start() error {
 	sch := newScheduler()
 	go sch.run()
 	httpServ := http.Server{
-		Addr:    orDefaultAddr(server.Addr),
+		Addr:    orDefaultAddr(server.Addr, DefaultServerAddr),
 		Handler: newHandler(sch),
 	}
 	return httpServ.ListenAndServe()
 }
 
-const DefaultAddr = ":30666"
+const DefaultServerAddr = ":30666"
 
-func orDefaultAddr(addr string) string {
+func orDefaultAddr(addr, defaultAddr string) string {
 	if addr != "" {
 		return addr
 	}
-	return DefaultAddr
+	return defaultAddr
 }
