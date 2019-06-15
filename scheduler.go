@@ -2,6 +2,8 @@ package pullbuddy
 
 import (
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 type scheduler struct {
@@ -11,6 +13,7 @@ type scheduler struct {
 	scheduleChan           chan imageID
 	processingFinishedChan chan processingImageResult
 	puller                 imagePuller
+	logger                 logrus.FieldLogger
 }
 
 func newScheduler() *scheduler {
@@ -22,6 +25,7 @@ func newScheduler() *scheduler {
 }
 
 func (sch *scheduler) list() []image {
+	sch.logger.Info("list images")
 	locker := sch.lock.RLocker()
 	locker.Lock()
 	defer locker.Unlock()
@@ -31,6 +35,7 @@ func (sch *scheduler) list() []image {
 }
 
 func (sch *scheduler) schedule(id string) {
+	sch.logger.WithField("image_id", id).Info("schedule image")
 	sch.scheduleChan <- imageID(id)
 }
 
@@ -51,6 +56,7 @@ func (sch *scheduler) scheduleFromChannel(id imageID) {
 	defer sch.lock.Unlock()
 	for i := range sch.images {
 		if sch.images[i].id == id && !sch.images[i].status.Done() {
+			sch.logger.WithField("image_id", id).Info("image already scheduled")
 			return
 		}
 	}
@@ -61,6 +67,7 @@ func (sch *scheduler) scheduleFromChannel(id imageID) {
 			status: pending,
 		},
 	)
+	sch.logger.WithField("image_id", id).Info("image scheduled")
 }
 
 func (sch *scheduler) nextImage() {
@@ -71,6 +78,7 @@ func (sch *scheduler) nextImage() {
 	defer sch.lock.Unlock()
 	for i := range sch.images {
 		if sch.images[i].status == pending {
+			sch.logger.WithField("image_id", sch.images[i].id).Info("pull image")
 			go sch.processImage(sch.images[i].id)
 			sch.images[i].status = pulling
 			sch.processing = true
@@ -87,6 +95,11 @@ func (sch *scheduler) processImage(id imageID) {
 }
 
 func (sch *scheduler) handleProcessResult(result processingImageResult) {
+	logger := sch.logger.WithField("image_id", result.id)
+	if result.err != nil {
+		logger = logger.WithField("pull_error", result.err)
+	}
+	logger.Info("handled image")
 	sch.processing = false
 	sch.lock.Lock()
 	defer sch.lock.Unlock()

@@ -2,8 +2,10 @@ package pullbuddy
 
 import (
 	"net/http"
+	"os"
 
 	dc "github.com/moby/moby/client"
+	"github.com/sirupsen/logrus"
 )
 
 type Server struct {
@@ -17,6 +19,9 @@ func (server *Server) Start() error {
 	}
 	sch := newScheduler()
 	sch.puller = newDockerImagePuller(dockerClient)
+	logger := logrus.New()
+	logger.Out = os.Stdout
+	sch.logger = logger
 	go sch.run()
 	httpServ := http.Server{
 		Addr:    orDefaultAddr(server.Addr, DefaultServerAddr),
