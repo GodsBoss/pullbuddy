@@ -2,6 +2,7 @@ package pullbuddy
 
 import (
 	"context"
+	"io"
 
 	"github.com/docker/docker/api/types"
 	"github.com/moby/moby/client"
@@ -25,6 +26,7 @@ func (puller *dockerImagePuller) pull(id string) error {
 	)
 	if readCloser != nil {
 		defer readCloser.Close()
+		io.Copy(devNull("/dev/null"), readCloser)
 	}
 	return err
 }
