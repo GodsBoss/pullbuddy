@@ -2,6 +2,8 @@ package pullbuddy
 
 import (
 	"net/http"
+
+	dc "github.com/moby/moby/client"
 )
 
 type Server struct {
@@ -9,7 +11,12 @@ type Server struct {
 }
 
 func (server *Server) Start() error {
+	dockerClient, err := dc.NewClientWithOpts()
+	if err != nil {
+		return err
+	}
 	sch := newScheduler()
+	sch.puller = newDockerImagePuller(dockerClient)
 	go sch.run()
 	httpServ := http.Server{
 		Addr:    orDefaultAddr(server.Addr, DefaultServerAddr),

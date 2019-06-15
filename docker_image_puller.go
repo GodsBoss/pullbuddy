@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
+	"github.com/moby/moby/client"
 )
 
 type dockerImagePuller struct {
