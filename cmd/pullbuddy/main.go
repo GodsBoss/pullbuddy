@@ -42,14 +42,35 @@ func createApp() *cli.App {
 			},
 			{
 				Name: "schedule",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name: "server-addr",
+					},
+					&cli.StringFlag{
+						Name: "image",
+					},
+				},
 				Action: func(ctx *cli.Context) error {
-					return nil
+					client := &pullbuddy.Client{
+						Addr: ctx.String("server-addr"),
+						Out:  os.Stdout,
+					}
+					return client.Schedule(ctx.String("image"))
 				},
 			},
 			{
 				Name: "status",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name: "server-addr",
+					},
+				},
 				Action: func(ctx *cli.Context) error {
-					return nil
+					client := &pullbuddy.Client{
+						Addr: ctx.String("server-addr"),
+						Out:  os.Stdout,
+					}
+					return client.Status()
 				},
 			},
 		},
