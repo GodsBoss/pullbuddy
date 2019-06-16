@@ -59,7 +59,7 @@ func (client *Client) Schedule(id string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("got unexpected HTTP status %s\n", resp.Status)
+		return fmt.Errorf("got unexpected HTTP status %s", resp.Status)
 	}
 	fmt.Fprintf(client.Out, "scheduled Docker image %s\n", id)
 	return nil
