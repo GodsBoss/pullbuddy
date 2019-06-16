@@ -39,16 +39,6 @@ func listHandler(api schedulerAPI) http.HandlerFunc {
 	}
 }
 
-type listResponse struct {
-	Images []listResponseImage `json:"images"`
-}
-
-type listResponseImage struct {
-	ID     string `json:"id"`
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
-}
-
 func scheduleHandler(api schedulerAPI) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		sr := scheduleRequest{}
@@ -59,8 +49,4 @@ func scheduleHandler(api schedulerAPI) http.HandlerFunc {
 		}
 		api.schedule(sr.ImageID)
 	}
-}
-
-type scheduleRequest struct {
-	ImageID string `json:"image_id"`
 }
