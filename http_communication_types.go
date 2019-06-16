@@ -15,6 +15,5 @@ type scheduleRequest struct {
 }
 
 type scheduleResponse struct {
-	ImageID string `json:"image_id,omitempty"`
 	Message string `json:"messge"`
 }
