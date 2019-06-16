@@ -52,10 +52,15 @@ type validationFailedError interface {
 type invalidIDError string
 
 func (err invalidIDError) Error() string {
-	return fmt.Sprintf("'%s' is not a valid Docker image ID", err)
+	return fmt.Sprintf("'%s' is not a valid Docker image ID", string(err))
 }
 
 func (err invalidIDError) validationFailed() {}
+
+func isValidationFailedError(err error) bool {
+	_, ok := err.(validationFailedError)
+	return ok
+}
 
 func (sch *scheduler) run() {
 	for {

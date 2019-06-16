@@ -2,6 +2,7 @@ package pullbuddy
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -42,11 +43,29 @@ func listHandler(api schedulerAPI) http.HandlerFunc {
 func scheduleHandler(api schedulerAPI) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		sr := scheduleRequest{}
+		resp := scheduleResponse{}
 		err := json.NewDecoder(request.Body).Decode(&sr)
 		if err != nil {
+			resp.Message = fmt.Sprintf("could not parse request body: %s", err)
 			response.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(response).Encode(resp)
 			return
 		}
-		api.schedule(sr.ImageID)
+		err = api.schedule(sr.ImageID)
+		if isValidationFailedError(err) {
+			resp.Message = fmt.Sprintf("validation failed: %s", err)
+			response.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(response).Encode(resp)
+			return
+		}
+		if err != nil {
+			resp.Message = "a server error occured"
+			response.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(response).Encode(resp)
+			return
+		}
+		resp.Message = "OK"
+		response.WriteHeader(http.StatusOK)
+		json.NewEncoder(response).Encode(resp)
 	}
 }
