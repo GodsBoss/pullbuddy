@@ -1,6 +1,7 @@
 package pullbuddy
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -34,10 +35,27 @@ func (sch *scheduler) list() []image {
 	return images
 }
 
-func (sch *scheduler) schedule(id string) {
+func (sch *scheduler) schedule(id string) error {
+	if id == "" {
+		return invalidIDError(id)
+	}
 	sch.logger.WithField("image_id", id).Info("schedule image")
 	sch.scheduleChan <- imageID(id)
+	return nil
 }
+
+// validationFailedError is a marker interface for validation errors.
+type validationFailedError interface {
+	validationFailed()
+}
+
+type invalidIDError string
+
+func (err invalidIDError) Error() string {
+	return fmt.Sprintf("'%s' is not a valid Docker image ID", err)
+}
+
+func (err invalidIDError) validationFailed() {}
 
 func (sch *scheduler) run() {
 	for {

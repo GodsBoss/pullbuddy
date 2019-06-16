@@ -9,7 +9,7 @@ import (
 
 type schedulerAPI interface {
 	list() []image
-	schedule(id string)
+	schedule(id string) error
 }
 
 func newHandler(api schedulerAPI) http.Handler {
