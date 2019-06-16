@@ -58,6 +58,17 @@ func (client *Client) Schedule(id string) error {
 		return err
 	}
 	defer resp.Body.Close()
+	parsedResponse := scheduleResponse{}
+	err = json.NewDecoder(resp.Body).Decode(&parsedResponse)
+	if err != nil {
+		return fmt.Errorf("could not parse response: %s (HTTP status %s)", err, resp.Status)
+	}
+	if resp.StatusCode == http.StatusBadRequest {
+		return fmt.Errorf("could not schedule image - client error: %s", parsedResponse.Message)
+	}
+	if resp.StatusCode == http.StatusInternalServerError {
+		return fmt.Errorf("server error")
+	}
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("got unexpected HTTP status %s", resp.Status)
 	}
